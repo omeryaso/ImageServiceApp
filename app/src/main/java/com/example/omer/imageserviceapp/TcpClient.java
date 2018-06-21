@@ -24,7 +24,7 @@ public class TcpClient {
 
     /**
      * startCommunication function.
-     * talks to server.
+     * creates the commiuncation to the server
      * @throws Exception
      */
     public void startCommunication() throws Exception {
@@ -37,11 +37,11 @@ public class TcpClient {
                 Socket socket = new Socket(serverAddr, 7999);
                 OutputStream output = socket.getOutputStream();
                 InputStream input = socket.getInputStream();
-                //write image name to server
+                // send the name to the service
                 output.write(file.getName().getBytes());
-                //confirm from server he got the name
+                // confirm that the service got the name
                 byte[] confirmation = new byte[1];
-                //write image to server
+                // send the image to the service
                 if (input.read(confirmation) == 1) {
                     output.write(extractBytes(file));
                 }
@@ -72,8 +72,8 @@ public class TcpClient {
             while ((i = fis.read(buffer)) != -1) {
                 stream.write(buffer, 0, i);
             }
-
         } catch (IOException ex) {
+            Log.e("TCP", "S: Error", ex);
         }
         return stream.toByteArray();
 
