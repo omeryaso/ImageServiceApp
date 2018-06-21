@@ -92,7 +92,7 @@ public class ImageService extends Service {
         channel.setDescription("Progress bar for image transfer");
         NM.createNotificationChannel(channel);
         builder.setSmallIcon(R.drawable.ic_launcher_background);
-        builder.setContentTitle("Passing images...");
+        builder.setContentTitle("Passing images....");
         builder.setContentText("Passing in progress...");
         //start the transfer
         new Thread(new Runnable() {
