@@ -1,5 +1,6 @@
 package com.example.omer.imageserviceapp;
 
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -87,6 +88,9 @@ public class ImageService extends Service {
         final NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "default");
         final int notifyId = 1;
         final NotificationManager NM = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationChannel channel = new NotificationChannel("default", "Progress bar", NotificationManager.IMPORTANCE_DEFAULT);
+        channel.setDescription("Progress bar for image transfer");
+        NM.createNotificationChannel(channel);
         builder.setSmallIcon(R.drawable.ic_launcher_background);
         builder.setContentTitle("Passing images...");
         builder.setContentText("Passing in progress...");
