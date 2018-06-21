@@ -36,13 +36,22 @@ public class TcpClient {
                 Socket socket = new Socket(serverAddr, 7999);
                 OutputStream output = socket.getOutputStream();
                 InputStream input = socket.getInputStream();
-                // send the name to the service
                 output.write(file.getName().getBytes());
-                // confirm that the service got the name
                 byte[] confirmation = new byte[1];
-                // send the image to the service
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                byte[] buffer = new byte[1024];
+                FileInputStream fis = new FileInputStream(file);
+                int i;
                 if (input.read(confirmation) == 1) {
-                    output.write(extractBytes(file));
+                    try {
+                        while ((i = fis.read(buffer)) != -1) {
+                            stream.write(buffer, 0, i);
+                        }
+                    } catch (IOException ex) {
+                        Log.e("TCP", "S: Error", ex);
+                    }
+
+                    output.write(stream.toByteArray());
                 }
                 output.flush();
             } catch (Exception e) {
@@ -55,26 +64,4 @@ public class TcpClient {
         }
     }
 
-    /**
-     * extractBytes function.
-     * extract bytes from photo.
-     * @param file - photo.
-     * @return byte array
-     * @throws IOException in case of error
-     */
-    public static byte[] extractBytes(File file) throws IOException {
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        byte[] buffer = new byte[1024];
-        FileInputStream fis = new FileInputStream(file);
-        try {
-            int i;
-            while ((i = fis.read(buffer)) != -1) {
-                stream.write(buffer, 0, i);
-            }
-        } catch (IOException ex) {
-            Log.e("TCP", "S: Error", ex);
-        }
-        return stream.toByteArray();
-
-    }
 }
