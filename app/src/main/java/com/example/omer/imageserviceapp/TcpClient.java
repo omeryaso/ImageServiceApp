@@ -11,24 +11,23 @@ import java.net.InetAddress;
 import java.net.Socket;
 
 public class TcpClient {
-    //member
+
     File file;
 
     /**
-     * constructor.
-     * @param myFile - the file to be sent to server
+     * constructor that receives a file for the server.
+     * @param file - server file
      */
-    public TcpClient(File myFile) {
-        file = myFile;
+    public TcpClient(File file) {
+        this.file = file;
     }
 
     /**
-     * startCommunication function.
+     * startCommunication() - starts the communication.
      * talks to server.
      * @throws Exception
      */
     public void startCommunication() throws Exception {
-
         try {
             //here you must put your computer's IP address.
             InetAddress serverAddr = InetAddress.getByName("10.0.2.2");
