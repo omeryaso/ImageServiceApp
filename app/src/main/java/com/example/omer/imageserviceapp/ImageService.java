@@ -25,29 +25,30 @@ import java.util.List;
 public class ImageService extends Service {
 
     //members
-    IntentFilter intentFilter= new IntentFilter();;
-    BroadcastReceiver broadcastReceiver;
+    IntentFilter intentFilter= new IntentFilter();
+    BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @RequiresApi(api = Build.VERSION_CODES.O)
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+            NetworkInfo networkInfo = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
+            if (networkInfo != null) {
+                if (networkInfo.getType() == ConnectivityManager.TYPE_WIFI) {
+                    //get the different network states
+                    if (networkInfo.getState() == NetworkInfo.State.CONNECTED) {
+                        startTransfer(context); // Starting the Transfer
+                    }
+                }
+            }
+        }
+    };
     List<File> files;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startID) {
         Toast.makeText(this, "Service starting...", Toast.LENGTH_LONG).show();
-        this.broadcastReceiver = new BroadcastReceiver() {
-            @RequiresApi(api = Build.VERSION_CODES.O)
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-                NetworkInfo networkInfo = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
-                if (networkInfo != null) {
-                    if (networkInfo.getType() == ConnectivityManager.TYPE_WIFI) {
-                        if (networkInfo.getState() == NetworkInfo.State.CONNECTED) {
-                            //start transfer
-                            startTransfer(context);
-                        }
-                    }
-                }
-            }
-        };
+        // Registers the receiver so that your service will listen for
+        // broadcasts
         this.registerReceiver(this.broadcastReceiver, intentFilter);
         return START_STICKY;
     }
@@ -62,7 +63,8 @@ public class ImageService extends Service {
     }
 
     /**
-     * onCreate - .
+     * onCreate() will be called when service creation
+     * and decides what will happen on create.
      */
     @Override
     public void onCreate() {
@@ -72,7 +74,7 @@ public class ImageService extends Service {
     }
 
     /**
-     * onDestroy - will be called when  service distraction has started
+     * onDestroy() will be called when service distraction has started
      * and will define the proper actions.
      */
     @Override
@@ -85,8 +87,8 @@ public class ImageService extends Service {
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void startTransfer(Context context) {
         //set notification progress bar
+        final int NI = 1;
         final NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "default");
-        final int notifyId = 1;
         final NotificationManager NM = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         NotificationChannel channel = new NotificationChannel("default", "Progress bar", NotificationManager.IMPORTANCE_DEFAULT);
         channel.setDescription("Progress bar for image transfer");
@@ -109,14 +111,14 @@ public class ImageService extends Service {
                         //update the progress bar
                         barState = barState + 100 / files.size();
                         builder.setProgress(100, barState, false);
-                        NM.notify(notifyId, builder.build());
+                        NM.notify(NI, builder.build());
 
                     }
                     //finish
                     builder.setProgress(0, 0, false);
                     builder.setContentTitle("Finished transfer!");
                     builder.setContentText("Finished transfer!");
-                    NM.notify(notifyId, builder.build());
+                    NM.notify(NI, builder.build());
                 } catch (Exception ex) {
 
                 }
@@ -131,7 +133,7 @@ public class ImageService extends Service {
         for (int i=0; i <len; i++) {
             if (dirFiles[i].isDirectory()) {
                 getOneFile(dirFiles[i], picsFilesList);
-            } else if(dirFiles[i].toString().contains(".jpg")) {
+            } else if(cheackExtention(dirFiles[i].toString())) {
                 picsFilesList.add(dirFiles[i]);
             }
         }
@@ -149,12 +151,16 @@ public class ImageService extends Service {
                 //check if dir
                 if (fileOrDir[i].isDirectory()) {
                     getOneFile(fileOrDir[i], picsFilesList);
-                } else if(fileOrDir[i].toString().contains(".jpg")) { //check if file
+                } else if(cheackExtention(fileOrDir[i].toString())) { //check if file
                     picsFilesList.add(fileOrDir[i]);
                 }
             }
         }
         //update the member
         files = picsFilesList;
+    }
+
+    private boolean cheackExtention(String string) {
+        return  (string.contains(".jpg") || string.contains(".png") || string.contains(".gif") || string.contains(".bmp"));
     }
 }
